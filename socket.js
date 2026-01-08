@@ -7,7 +7,9 @@ const initSocket = (server) => {
         cors: {
             origin: [
                 process.env.CLIENT_URL || "http://localhost:3000",
-                process.env.ADMIN_URL || "http://localhost:3001"
+                process.env.ADMIN_URL || "http://localhost:3001",
+                'https://skygames.vercel.app',
+                'https://games-fe.vercel.app'
             ],
             methods: ["GET", "POST"],
             credentials: true
