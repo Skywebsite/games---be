@@ -12,7 +12,11 @@ exports.getGames = async (req, res) => {
         const games = await Game.find({}).sort({ createdAt: -1 });
         res.json(games);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error in getGames:", error);
+        res.status(500).json({
+            message: "Failed to fetch games",
+            error: error.message
+        });
     }
 };
 
@@ -22,7 +26,7 @@ exports.searchGames = async (req, res) => {
         if (!search) {
             return res.json([]);
         }
-        
+
         // Try text search first, fallback to regex if text index doesn't exist
         let games;
         try {
@@ -41,10 +45,10 @@ exports.searchGames = async (req, res) => {
                 ]
             }).sort({ createdAt: -1 });
         }
-        
+
         // Apply limit if provided
         const result = limit ? await games.limit(parseInt(limit)) : await games;
-        
+
         res.json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });

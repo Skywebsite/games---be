@@ -1,15 +1,29 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const http = require('http');
 const { initSocket } = require('./socket');
+const connectDB = require('./config/db');
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+// Connect to Database
+connectDB();
+
+// Middleware to ensure DB is connected
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("DB Middleware Error:", err);
+    res.status(500).json({ message: "Database connection error" });
+  }
+});
 
 // Middleware
 app.use(express.json());
@@ -23,11 +37,6 @@ app.use(cors({
   ],
   credentials: true
 }));
-
-// DB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/skygames')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
 
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
