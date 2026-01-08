@@ -18,16 +18,19 @@ exports.getGames = async (req, res) => {
 
 exports.searchGames = async (req, res) => {
     try {
-        const { search } = req.query;
+        const { search, limit } = req.query;
         if (!search) {
             return res.json([]);
         }
         
         // Use MongoDB text search for better performance
-        const games = await Game.find(
+        const query = Game.find(
             { $text: { $search: search } },
             { score: { $meta: 'textScore' } }
         ).sort({ score: { $meta: 'textScore' }, createdAt: -1 });
+        
+        // Apply limit if provided
+        const games = limit ? await query.limit(parseInt(limit)) : await query;
         
         res.json(games);
     } catch (error) {
