@@ -23,16 +23,29 @@ exports.searchGames = async (req, res) => {
             return res.json([]);
         }
         
-        // Use MongoDB text search for better performance
-        const query = Game.find(
-            { $text: { $search: search } },
-            { score: { $meta: 'textScore' } }
-        ).sort({ score: { $meta: 'textScore' }, createdAt: -1 });
+        // Try text search first, fallback to regex if text index doesn't exist
+        let games;
+        try {
+            games = await Game.find(
+                { $text: { $search: search } },
+                { score: { $meta: 'textScore' } }
+            ).sort({ score: { $meta: 'textScore' }, createdAt: -1 });
+        } catch (textError) {
+            // Fallback to regex search if text index doesn't exist
+            const searchRegex = new RegExp(search, 'i');
+            games = await Game.find({
+                $or: [
+                    { title: { $regex: searchRegex } },
+                    { description: { $regex: searchRegex } },
+                    { category: { $regex: searchRegex } }
+                ]
+            }).sort({ createdAt: -1 });
+        }
         
         // Apply limit if provided
-        const games = limit ? await query.limit(parseInt(limit)) : await query;
+        const result = limit ? await games.limit(parseInt(limit)) : await games;
         
-        res.json(games);
+        res.json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
