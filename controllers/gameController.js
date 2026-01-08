@@ -23,14 +23,11 @@ exports.searchGames = async (req, res) => {
             return res.json([]);
         }
         
-        const searchRegex = new RegExp(search, 'i');
-        const games = await Game.find({
-            $or: [
-                { title: { $regex: searchRegex } },
-                { description: { $regex: searchRegex } },
-                { category: { $regex: searchRegex } }
-            ]
-        }).sort({ createdAt: -1 });
+        // Use MongoDB text search for better performance
+        const games = await Game.find(
+            { $text: { $search: search } },
+            { score: { $meta: 'textScore' } }
+        ).sort({ score: { $meta: 'textScore' }, createdAt: -1 });
         
         res.json(games);
     } catch (error) {

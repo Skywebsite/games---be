@@ -4,17 +4,20 @@ const gameSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        index: true
     },
     slug: {
         type: String,
         required: true,
         unique: true,
-        lowercase: true
+        lowercase: true,
+        index: true
     },
     description: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     category: {
         type: String,
@@ -39,5 +42,8 @@ const gameSchema = new mongoose.Schema({
         default: 0
     }
 }, { timestamps: true });
+
+// Create text indexes for better search performance
+gameSchema.index({ title: 'text', description: 'text', category: 'text' });
 
 module.exports = mongoose.model('Game', gameSchema);
