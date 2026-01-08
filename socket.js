@@ -8,8 +8,8 @@ const initSocket = (server) => {
             origin: [
                 process.env.CLIENT_URL || "http://localhost:3000",
                 process.env.ADMIN_URL || "http://localhost:3001",
-                'https://skygames.vercel.app',
-                'https://games-fe.vercel.app'
+                'https://games-fe.vercel.app',
+                'https://games-admin.vercel.app'
             ],
             methods: ["GET", "POST"],
             credentials: true
