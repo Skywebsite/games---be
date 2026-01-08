@@ -16,6 +16,28 @@ exports.getGames = async (req, res) => {
     }
 };
 
+exports.searchGames = async (req, res) => {
+    try {
+        const { search } = req.query;
+        if (!search) {
+            return res.json([]);
+        }
+        
+        const searchRegex = new RegExp(search, 'i');
+        const games = await Game.find({
+            $or: [
+                { title: { $regex: searchRegex } },
+                { description: { $regex: searchRegex } },
+                { category: { $regex: searchRegex } }
+            ]
+        }).sort({ createdAt: -1 });
+        
+        res.json(games);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.updateGame = async (req, res) => {
     console.log("updateGame Request Body:", req.body);
     console.log("updateGame Request Files:", req.files);
