@@ -47,7 +47,7 @@ exports.searchGames = async (req, res) => {
         }
 
         // Apply limit if provided
-        const result = limit ? await games.limit(parseInt(limit)) : await games;
+        const result = limit ? games.slice(0, parseInt(limit)) : games;
 
         res.json(result);
     } catch (error) {
